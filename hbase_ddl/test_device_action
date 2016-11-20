@@ -1,0 +1,1 @@
+create 'test_device_action',{NAME => 'article',VERSIONS => '1'},{NAME => 'comment',VERSIONS => '1'},{NAME => 'group',VERSIONS => '1'},{NAME => 'other',VERSIONS => '1'}

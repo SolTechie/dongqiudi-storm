@@ -1,0 +1,1 @@
+create 'test_device_article_access',{NAME => 'days',VERSIONS => '1'},{NAME => 'months',VERSIONS => '1'},{NAME => 'years',VERSIONS => '1'}

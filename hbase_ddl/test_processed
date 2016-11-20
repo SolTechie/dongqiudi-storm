@@ -1,0 +1,1 @@
+create 'test_processed',{NAME=>'parsed',VERSIONS => '1'},{NAME=>'unparsed',VERSIONS => '1'}

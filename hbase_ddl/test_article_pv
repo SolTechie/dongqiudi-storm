@@ -1,0 +1,1 @@
+create 'test_article_pv',{NAME => 'd_g', VERSIONS => '1'},{NAME => 'd_u', VERSIONS => '1'},{NAME => 'h_g', VERSIONS => '1'},{NAME => 'h_u', VERSIONS => '1'},{NAME => 'm_g', VERSIONS => '1'},{NAME => 'm_u', VERSIONS => '1'},{NAME => 'mon_g', VERSIONS => '1'},{NAME => 'mon_u', VERSIONS => '1'}
