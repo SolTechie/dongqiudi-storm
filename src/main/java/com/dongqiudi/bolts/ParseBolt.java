@@ -41,37 +41,37 @@ public class ParseBolt extends BaseRichBolt {
             String host = parseRes.get("host");
             String method = parseRes.get("method");
             String protocol = parseRes.get("protocol");
-            String status = parseRes.get("status");
-            String reqSize = parseRes.get("size");
-            String requestTime = parseRes.get("request_time");
-            String upstreamTime = parseRes.get("upstream_time");
+            String status = String.valueOf(parseRes.get("status"));
+            String reqSize = String.valueOf(parseRes.get("size"));
+            String requestTime = String.valueOf(parseRes.get("request_time"));
+            String upstreamTime = String.valueOf(parseRes.get("upstream_time"));
             String referer = parseRes.get("referer");
             String agent = parseRes.get("agent");
             String uuid = parseRes.get("uuid");
             String authorization = parseRes.get("authorization");
-            hBaseClient.incrementValue("test_processed", "2016", "parsed", "11-11", 1L);
-            collector.emit(new Values(uri, authorization));
-        } catch (Exception e) {
+            hBaseClient.incrementValue("test_processed","2016","parsed","11-11",1L);
+            collector.emit(new Values(uri,authorization));
+        }catch (Exception e){
             e.printStackTrace();
             try {
                 hBaseClient.incrementValue("test_processed", "2016", "unparsed", "11-11", 1L);
-            } catch (IOException ioe) {
+            }catch (IOException ioe){
                 ioe.printStackTrace();
             }
             long ts = new Date().getTime();
             String rowkey = MD5Hash.getMD5AsHex(rawLine.getBytes()) + "_" + ts;
             try {
                 hBaseClient.writeStringData("test_un_parse", rowkey, "content", "1", rawLine);
-            } catch (IOException ioe) {
+            }catch (IOException ioe){
                 ioe.printStackTrace();
             }
-        } finally {
+        }finally {
             collector.ack(input);
         }
 
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("uri", "token"));
+        declarer.declare(new Fields("uri","token"));
     }
 }

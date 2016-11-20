@@ -23,8 +23,6 @@ public class NginxLogTopology extends Topology {
 
     public NginxLogTopology(Properties properties) {
         super(properties);
-        System.out.println("here");
-
     }
 
 

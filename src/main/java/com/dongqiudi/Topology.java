@@ -28,33 +28,35 @@ public abstract class Topology {
 
     protected HBaseClient hBaseClient;
 
+    protected List<String> nimbusSeeds;
+
+    protected int workNum;
+
     public Topology(Properties properties) {
+
+        name = properties.getProperty("task_name");
 
         topologyBuilder = new TopologyBuilder();
 
-        this.config = this.initConfig(properties);
-
-        initSpoutBolt(properties);
-    }
-
-    protected Config initConfig(Properties properties) {
-
-        Config config = new Config();
+        config = new Config();
 
         //set nimbus seed
-        List<String> nimbusSeed = new ArrayList<String>();
+        nimbusSeeds = new ArrayList<String>();
         for (String nimbus : StringUtils.split(properties.getProperty("nimbus_seeds"), ",")) {
-            nimbusSeed.add(nimbus);
+            nimbusSeeds.add(nimbus);
         }
-        config.put(Config.NIMBUS_SEEDS, nimbusSeed);
+        config.put(Config.NIMBUS_SEEDS, nimbusSeeds);
+
 
         //set work numbers
-        config.setNumWorkers(Integer.valueOf(properties.getProperty("work_num")));
+        workNum = Integer.valueOf(properties.getProperty("work_num"));
+        config.setNumWorkers(workNum);
 
         //hbase client
-        this.hBaseClient = this.initHBaseClient(properties);
+        hBaseClient = initHBaseClient(properties);
         config.put("hbaseClient", hBaseClient);
-        return config;
+
+        initSpoutBolt(properties);
     }
 
     protected KafkaSpout initKafkaSpout(Properties properties) {
@@ -77,11 +79,11 @@ public abstract class Topology {
     public void submit(String mode) {
         if (StringUtils.equals("local", mode)) {
             LocalCluster localCluster = new LocalCluster();
-            localCluster.submitTopology(this.name, this.config, this.topologyBuilder.createTopology());
+            localCluster.submitTopology(name, config, topologyBuilder.createTopology());
         }
         if (StringUtils.equals("cluster", mode)) {
             try {
-                StormSubmitter.submitTopologyWithProgressBar(this.name, this.config, this.topologyBuilder.createTopology());
+                StormSubmitter.submitTopologyWithProgressBar(name, config, topologyBuilder.createTopology());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

@@ -2,6 +2,7 @@ package com.dongqiudi.utils;
 
 import com.alibaba.fastjson.JSON;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +18,7 @@ public class ParseUtil {
     private Map<String, Pattern> patterns;
 
     private ParseUtil() {
+        patterns = new HashMap<String, Pattern>();
         patterns.put(COMMENT, Pattern.compile("/articles/create_comment/([0-9]+)"));
         patterns.put(ARTICLE, Pattern.compile("/(article)/([0-9]+)\\.html"));
     }
