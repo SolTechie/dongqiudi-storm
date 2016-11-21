@@ -20,7 +20,7 @@ public class ParseUtil {
     private ParseUtil() {
         patterns = new HashMap<String, Pattern>();
         patterns.put(COMMENT, Pattern.compile("/articles/create_comment/([0-9]+)"));
-        patterns.put(ARTICLE, Pattern.compile("/(article)/([0-9]+)\\.html"));
+        patterns.put(ARTICLE, Pattern.compile("/article/([0-9]+)\\.html"));
     }
 
     static private ParseUtil instance = new ParseUtil();

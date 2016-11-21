@@ -1,12 +1,8 @@
 package com.dongqiudi.bolts;
 
-import com.dongqiudi.utils.HBaseClient;
 import com.dongqiudi.utils.ParseUtil;
 import org.apache.hadoop.hbase.util.MD5Hash;
-import org.apache.storm.task.OutputCollector;
-import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
@@ -18,21 +14,8 @@ import java.util.Map;
 /**
  * Created by Joshua on 16/11/16.
  */
-public class ParseBolt extends BaseRichBolt {
+public class ParseBolt extends DqdBaseBolt {
 
-    private OutputCollector collector;
-
-    private HBaseClient hBaseClient;
-
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        Map<String, String> hbaseConfig = (Map<String, String>) stormConf.get("hbaseConfig");
-        String zkHosts = hbaseConfig.get("zk_hosts");
-        String zkPort = hbaseConfig.get("zk_port");
-        String hMaster = hbaseConfig.get("hmaster");
-        hBaseClient = new HBaseClient(zkHosts, zkPort, hMaster);
-        this.collector = collector;
-
-    }
 
     public void execute(Tuple input) {
         String rawLine = input.getString(0);
@@ -54,12 +37,12 @@ public class ParseBolt extends BaseRichBolt {
             String agent = parseRes.get("agent");
             String uuid = parseRes.get("uuid");
             String authorization = parseRes.get("authorization");
-            hBaseClient.incrementValue("test_processed", "2016", "parsed", "11-11", 1L);
+            hBaseClient.incrementValue("test_processed", "2016", "parsed", "11-22", 1L);
             collector.emit(new Values(uri, authorization));
         } catch (Exception e) {
             e.printStackTrace();
             try {
-                hBaseClient.incrementValue("test_processed", "2016", "unparsed", "11-11", 1L);
+                hBaseClient.incrementValue("test_processed", "2016", "unparsed", "11-22", 1L);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
