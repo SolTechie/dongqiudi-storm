@@ -1,6 +1,5 @@
 package com.dongqiudi;
 
-import com.dongqiudi.utils.HBaseClient;
 import org.apache.commons.lang.StringUtils;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
@@ -9,9 +8,7 @@ import org.apache.storm.kafka.*;
 import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.topology.TopologyBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by Joshua on 16/11/20.
@@ -25,8 +22,6 @@ public abstract class Topology {
     protected Config config;
 
     protected KafkaSpout kafkaSpout;
-
-    protected HBaseClient hBaseClient;
 
     protected List<String> nimbusSeeds;
 
@@ -52,9 +47,12 @@ public abstract class Topology {
         workNum = Integer.valueOf(properties.getProperty("work_num"));
         config.setNumWorkers(workNum);
 
-        //hbase client
-        hBaseClient = initHBaseClient(properties);
-        config.put("hbaseClient", hBaseClient);
+        //hbase config
+        Map<String, String> hbaseConfig = new HashMap<String, String>();
+        hbaseConfig.put("zk_hosts", properties.getProperty("zk_hosts_port"));
+        hbaseConfig.put("zk_port", properties.getProperty("zk_port"));
+        hbaseConfig.put("hmaster", properties.getProperty("hmaster"));
+        config.put("hbaseConfig", hbaseConfig);
 
         initSpoutBolt(properties);
     }
@@ -69,12 +67,6 @@ public abstract class Topology {
         return new KafkaSpout(spoutConfig);
     }
 
-    protected HBaseClient initHBaseClient(Properties properties) {
-        String zkHosts = properties.getProperty("zk_hosts");
-        String zkPort = properties.getProperty("zk_port");
-        String hMaster = properties.getProperty("hmaster");
-        return new HBaseClient(zkHosts, zkPort, hMaster);
-    }
 
     public void submit(String mode) {
         if (StringUtils.equals("local", mode)) {

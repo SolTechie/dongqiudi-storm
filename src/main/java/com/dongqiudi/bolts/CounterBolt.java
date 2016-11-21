@@ -21,7 +21,11 @@ public class CounterBolt extends BaseRichBolt {
     private OutputCollector collector;
 
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        hBaseClient = (HBaseClient) stormConf.get("hbaseClient");
+        Map<String,String> hbaseConfig = (Map<String, String>) stormConf.get("hbaseConfig");
+        String zkHosts = hbaseConfig.get("zk_hosts");
+        String zkPort = hbaseConfig.get("zk_port");
+        String hMaster = hbaseConfig.get("hmaster");
+        hBaseClient = new HBaseClient(zkHosts,zkPort,hMaster);
         this.collector = collector;
     }
 
@@ -29,16 +33,18 @@ public class CounterBolt extends BaseRichBolt {
         String uri = input.getString(0);
         String token = input.getString(1);
         String commentAid = ParseUtil.getInstance().parseUri(uri, ParseUtil.COMMENT);
-        try {
-            if (StringUtils.equals("-", token)) {
-                hBaseClient.incrementValue("test_article_pv", commentAid, "d_g", "11-11", 1L);
-            } else {
-                hBaseClient.incrementValue("test_article_pv", commentAid, "d_u", "11-11", 1L);
+        if(StringUtils.isNotBlank(commentAid)) {
+            try {
+                if (StringUtils.equals("-", token)) {
+                    hBaseClient.incrementValue("test_article_pv", commentAid, "d_g", "11-11", 1L);
+                } else {
+                    hBaseClient.incrementValue("test_article_pv", commentAid, "d_u", "11-11", 1L);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
+        collector.ack(input);
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {

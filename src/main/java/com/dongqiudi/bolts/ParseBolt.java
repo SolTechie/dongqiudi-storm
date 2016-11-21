@@ -25,8 +25,13 @@ public class ParseBolt extends BaseRichBolt {
     private HBaseClient hBaseClient;
 
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
+        Map<String, String> hbaseConfig = (Map<String, String>) stormConf.get("hbaseConfig");
+        String zkHosts = hbaseConfig.get("zk_hosts");
+        String zkPort = hbaseConfig.get("zk_port");
+        String hMaster = hbaseConfig.get("hmaster");
+        hBaseClient = new HBaseClient(zkHosts, zkPort, hMaster);
         this.collector = collector;
-        hBaseClient = (HBaseClient) stormConf.get("hbaseClient");
+
     }
 
     public void execute(Tuple input) {
@@ -49,29 +54,29 @@ public class ParseBolt extends BaseRichBolt {
             String agent = parseRes.get("agent");
             String uuid = parseRes.get("uuid");
             String authorization = parseRes.get("authorization");
-            hBaseClient.incrementValue("test_processed","2016","parsed","11-11",1L);
-            collector.emit(new Values(uri,authorization));
-        }catch (Exception e){
+            hBaseClient.incrementValue("test_processed", "2016", "parsed", "11-11", 1L);
+            collector.emit(new Values(uri, authorization));
+        } catch (Exception e) {
             e.printStackTrace();
             try {
                 hBaseClient.incrementValue("test_processed", "2016", "unparsed", "11-11", 1L);
-            }catch (IOException ioe){
+            } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
             long ts = new Date().getTime();
             String rowkey = MD5Hash.getMD5AsHex(rawLine.getBytes()) + "_" + ts;
             try {
                 hBaseClient.writeStringData("test_un_parse", rowkey, "content", "1", rawLine);
-            }catch (IOException ioe){
+            } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-        }finally {
+        } finally {
             collector.ack(input);
         }
 
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("uri","token"));
+        declarer.declare(new Fields("uri", "token"));
     }
 }

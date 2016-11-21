@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class HBaseClient {
 
-    public static String UTF8="UTF-8";
+    public static String UTF8 = "UTF-8";
 
     private Configuration configuration;
 
@@ -56,7 +56,7 @@ public class HBaseClient {
         Connection connection = ConnectionFactory.createConnection(this.configuration);
         Table table = connection.getTable(TableName.valueOf(tableName));
         try {
-            return table.incrementColumnValue(rowKey.getBytes(UTF8),family.getBytes(UTF8),qualifier.getBytes(UTF8),value);
+            return table.incrementColumnValue(rowKey.getBytes(UTF8), family.getBytes(UTF8), qualifier.getBytes(UTF8), value);
         } catch (IOException ex) {
             throw ex;
         } finally {
@@ -72,7 +72,7 @@ public class HBaseClient {
         try {
             Get get = new Get(rowKey.getBytes(UTF8));
             Result result = table.get(get);
-            return new String(result.getValue(family.getBytes(UTF8), qualifier.getBytes(UTF8)),UTF8);
+            return new String(result.getValue(family.getBytes(UTF8), qualifier.getBytes(UTF8)), UTF8);
         } catch (IOException ex) {
             throw ex;
         } finally {
@@ -80,6 +80,5 @@ public class HBaseClient {
             table.close();
         }
     }
-
 
 }
