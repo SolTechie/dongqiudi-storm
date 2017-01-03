@@ -4,6 +4,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
+import org.apache.storm.hdfs.bolt.HdfsBolt;
+import org.apache.storm.hdfs.bolt.format.DefaultFileNameFormat;
+import org.apache.storm.hdfs.bolt.format.DelimitedRecordFormat;
+import org.apache.storm.hdfs.bolt.format.FileNameFormat;
+import org.apache.storm.hdfs.bolt.format.RecordFormat;
+import org.apache.storm.hdfs.bolt.rotation.FileRotationPolicy;
+import org.apache.storm.hdfs.bolt.rotation.FileSizeRotationPolicy;
+import org.apache.storm.hdfs.bolt.sync.CountSyncPolicy;
+import org.apache.storm.hdfs.bolt.sync.SyncPolicy;
 import org.apache.storm.kafka.*;
 import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.topology.TopologyBuilder;
@@ -22,6 +31,8 @@ public abstract class Topology {
     protected Config config;
 
     protected KafkaSpout kafkaSpout;
+
+    protected HdfsBolt hdfsBolt;
 
     protected List<String> nimbusSeeds;
 
@@ -67,6 +78,23 @@ public abstract class Topology {
         return new KafkaSpout(spoutConfig);
     }
 
+    protected HdfsBolt initHdfsBolt(Properties properties) {
+
+        FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath(properties.getProperty("hdfs_work_dir"));
+
+        RecordFormat format = new DelimitedRecordFormat().withFieldDelimiter(properties.getProperty(","));
+
+        SyncPolicy syncPolicy = new CountSyncPolicy(4096);
+
+        FileRotationPolicy rotationPolicy = new FileSizeRotationPolicy(1024.0f, FileSizeRotationPolicy.Units.MB);
+
+        return new HdfsBolt()
+                .withFsUrl(properties.getProperty("hdfs_url"))
+                .withFileNameFormat(fileNameFormat)
+                .withRecordFormat(format)
+                .withRotationPolicy(rotationPolicy)
+                .withSyncPolicy(syncPolicy);
+    }
 
     public void submit(String mode) {
         if (StringUtils.equals("local", mode)) {

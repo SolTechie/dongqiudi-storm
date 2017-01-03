@@ -1,0 +1,1 @@
+create 'article_class_channel',{NAME => 'channels', VERSIONS => '1'},{NAME => 'classes', VERSIONS => '1'}

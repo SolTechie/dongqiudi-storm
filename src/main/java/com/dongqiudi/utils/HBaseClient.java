@@ -6,7 +6,10 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Joshua on 16/11/15.
@@ -73,6 +76,30 @@ public class HBaseClient {
             Get get = new Get(rowKey.getBytes(UTF8));
             Result result = table.get(get);
             return new String(result.getValue(family.getBytes(UTF8), qualifier.getBytes(UTF8)), UTF8);
+        } catch (IOException ex) {
+            throw ex;
+        } finally {
+            connection.close();
+            table.close();
+        }
+    }
+
+    public Map<String, Object> readColumFamily(String tableName, String rowKey, String family) throws IOException {
+        Connection connection = ConnectionFactory.createConnection(this.configuration);
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        Map<String, Object> ret = new HashMap<String, Object>();
+        try {
+            Get get = new Get(rowKey.getBytes(UTF8));
+            Result result = table.get(get);
+            Map map = result.getFamilyMap(family.getBytes(UTF8));
+            Iterator iter = map.keySet().iterator();
+            while (iter.hasNext()) {
+                byte[] keyBytes = (byte[]) iter.next();
+                String key = new String(keyBytes, UTF8);
+                String value = new String((byte[]) map.get(keyBytes), UTF8);
+                ret.put(key, value);
+            }
+            return ret;
         } catch (IOException ex) {
             throw ex;
         } finally {

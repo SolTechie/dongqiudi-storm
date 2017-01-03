@@ -1,7 +1,8 @@
 package com.dongqiudi;
 
 
-import com.dongqiudi.topologies.NginxLogTopology;
+import com.dongqiudi.topologies.ArticleChannelTopology;
+import com.dongqiudi.topologies.ArticleClassTopology;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,13 +21,11 @@ public class App {
         String mode = "cluster";
         if (0 == args.length) {
             mode = "local";
-            properties.load(ClassLoader.getSystemClassLoader().getResourceAsStream("task.properties"));
+            properties.load(ClassLoader.getSystemClassLoader().getResourceAsStream("article_class.properties"));
         } else {
             properties.load(new FileInputStream(args[0]));
         }
-        Topology topology = new NginxLogTopology(properties);
+        Topology topology = new ArticleClassTopology(properties);
         topology.submit(mode);
-
-
     }
 }
